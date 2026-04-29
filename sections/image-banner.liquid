@@ -1,0 +1,893 @@
+{{ 'section-image-banner.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  {%- comment -%} Responsive image switching: image_2 on tablet/smaller, image on laptop/larger {%- endcomment -%}
+  {%- if section.settings.image != blank and section.settings.image_2 != blank -%}
+    @media screen and (min-width: 990px) {
+      #Banner-{{ section.id }} .banner__media--image-2 {
+        display: none !important;
+      }
+      #Banner-{{ section.id }} .banner__media--image-1 {
+        display: block !important;
+        width: 100% !important;
+      }
+      #Banner-{{ section.id }} .banner__media--image-1 img {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover;
+        max-width: none;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+    }
+
+    @media screen and (max-width: 989px) {
+      #Banner-{{ section.id }} .banner__media--image-1 {
+        display: none !important;
+      }
+      #Banner-{{ section.id }} .banner__media--image-2 {
+        display: block !important;
+        width: 100% !important;
+      }
+      #Banner-{{ section.id }} .banner__media--image-2 img {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover;
+        max-width: none;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if section.settings.image_height == 'adapt' and section.settings.image != blank -%}
+  {%- style -%}
+    {%- comment -%} Use image_2 aspect ratio on tablet/smaller, image aspect ratio on laptop/larger {%- endcomment -%}
+    @media screen and (max-width: 989px) {
+      {%- if section.settings.image_2 != blank -%}
+        #Banner-{{ section.id }}::before,
+        #Banner-{{ section.id }} .banner__media::before,
+        #Banner-{{ section.id }}:not(.banner--mobile-bottom) .banner__content::before {
+          padding-bottom: {{ 1 | divided_by: section.settings.image_2.aspect_ratio | times: 100 }}%;
+          content: '';
+          display: block;
+        }
+      {%- else -%}
+        #Banner-{{ section.id }}::before,
+        #Banner-{{ section.id }} .banner__media::before,
+        #Banner-{{ section.id }}:not(.banner--mobile-bottom) .banner__content::before {
+          padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+          content: '';
+          display: block;
+        }
+      {%- endif -%}
+    }
+
+    @media screen and (min-width: 990px) {
+      #Banner-{{ section.id }}::before,
+      #Banner-{{ section.id }} .banner__media::before {
+        padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+        content: '';
+        display: block;
+      }
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #Banner-{{ section.id }}::after {
+    opacity: {{ section.settings.image_overlay_opacity | divided_by: 100.0 }};
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign widths = '375, 550, 750, 1100, 1280, 1440, 1500, 1780, 2000, 2500, 3000, 3840'
+-%}
+
+<div
+  id="Banner-{{ section.id }}"
+  class="banner banner--content-align-{{ section.settings.desktop_content_alignment }} banner--content-align-mobile-{{ section.settings.mobile_content_alignment }} banner--{{ section.settings.image_height }}{% if section.settings.stack_images_on_mobile and section.settings.image != blank and section.settings.image_2 != blank %} banner--stacked{% endif %}{% if section.settings.image_height == 'adapt' and section.settings.image != blank %} banner--adapt{% endif %}{% if section.settings.show_text_below %} banner--mobile-bottom{%- endif -%}{% if section.settings.show_text_box == false %} banner--desktop-transparent{% endif %}{% if section.settings.show_overlay_content %} ib-has-overlay{% endif %}"
+>
+  {%- if section.settings.image != blank -%}
+    {%- if section.settings.banner_link != blank -%}
+      <a
+        href="{{ section.settings.banner_link }}"
+        class="banner__media banner__media--image-1 media{% if section.settings.image == blank and section.settings.image_2 == blank %} placeholder{% endif %}{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}"
+      >
+    {%- else -%}
+      <div
+        class="banner__media banner__media--image-1 media{% if section.settings.image == blank and section.settings.image_2 == blank %} placeholder{% endif %}{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}"
+      >
+    {%- endif -%}
+    {%- liquid
+      assign image_height = section.settings.image.width | divided_by: section.settings.image.aspect_ratio
+      assign sizes = '100vw'
+    -%}
+    {{
+      section.settings.image
+      | image_url: width: 3000
+      | image_tag:
+        loading: 'eager',
+        fetchpriority: 'high',
+        width: section.settings.image.width,
+        height: image_height,
+        sizes: sizes,
+        widths: widths
+    }}
+    {%- if section.settings.banner_link != blank -%}
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  {%- elsif section.settings.image_2 == blank -%}
+    <div class="banner__media media{% if section.settings.image == blank and section.settings.image_2 == blank %} placeholder{% endif %}{% if section.settings.image_2 != blank %} banner__media-half{% endif %}{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}">
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+  {%- endif -%}
+  {%- if section.settings.image_2 != blank -%}
+    {%- if section.settings.banner_link != blank -%}
+      <a
+        href="{{ section.settings.banner_link }}"
+        class="banner__media banner__media--image-2 media{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}"
+      >
+    {%- else -%}
+      <div
+        class="banner__media banner__media--image-2 media{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}"
+      >
+    {%- endif -%}
+    {%- liquid
+      assign image_height_2 = section.settings.image_2.width | divided_by: section.settings.image_2.aspect_ratio
+      assign sizes = '100vw'
+    -%}
+    {{
+      section.settings.image_2
+      | image_url: width: 3000
+      | image_tag:
+        loading: 'eager',
+        fetchpriority: 'high',
+        width: section.settings.image_2.width,
+        height: image_height_2,
+        sizes: sizes,
+        widths: widths
+    }}
+    {%- if section.settings.banner_link != blank -%}
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- comment -%} === Custom Content Overlay (Left-aligned) === {%- endcomment -%}
+  {%- if section.settings.show_overlay_content -%}
+    <div class="ib-overlay-content">
+      <div class="ib-overlay-content__inner">
+        {%- if section.settings.overlay_badge != blank -%}
+          <span class="ib-overlay-badge">{{ section.settings.overlay_badge }}</span>
+        {%- endif -%}
+        {%- if section.settings.overlay_heading_1 != blank or section.settings.overlay_heading_2 != blank -%}
+          <h2 class="ib-overlay-heading">
+            {%- if section.settings.overlay_heading_1 != blank -%}
+              <span class="ib-overlay-heading__line1">{{ section.settings.overlay_heading_1 }}</span>
+            {%- endif -%}
+            {%- if section.settings.overlay_heading_2 != blank -%}
+              <span class="ib-overlay-heading__line2">{{ section.settings.overlay_heading_2 }}</span>
+            {%- endif -%}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.overlay_subtext != blank -%}
+          <p class="ib-overlay-subtext">{{ section.settings.overlay_subtext }}</p>
+        {%- endif -%}
+        <div class="ib-overlay-buttons">
+          {%- if section.settings.overlay_btn1_text != blank -%}
+            <a href="{{ section.settings.overlay_btn1_url | default: '#' }}" class="ib-overlay-btn ib-overlay-btn--primary">{{ section.settings.overlay_btn1_text }}</a>
+          {%- endif -%}
+          {% comment %} {%- if section.settings.overlay_btn2_text != blank -%}
+            <a href="{{ section.settings.overlay_btn2_url | default: '#' }}" class="ib-overlay-btn ib-overlay-btn--secondary">{{ section.settings.overlay_btn2_text }}</a>
+          {%- endif -%} {% endcomment %}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} === Default block-based content (original behavior) === {%- endcomment -%}
+  <div class="banner__content banner__content--{{ section.settings.desktop_content_position }} page-width">
+    <div class="banner__box content-container content-container--full-width-mobile color-{{ section.settings.color_scheme }} gradient">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'heading' -%}
+            <h2
+              class="banner__heading inline-richtext {{ block.settings.heading_size }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.heading }}
+            </h2>
+          {%- when 'text' -%}
+            <div class="banner__text rte {{ block.settings.text_style }}" {{ block.shopify_attributes }}>
+              <p>{{ block.settings.text }}</p>
+            </div>
+          {%- when 'buttons' -%}
+            <div
+              class="banner__buttons{% if block.settings.button_label_1 != blank and block.settings.button_label_2 != blank %} banner__buttons--multiple{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.button_label_1 != blank -%}
+                <a
+                  {% if block.settings.button_link_1 == blank %}
+                    role="link" aria-disabled="true"
+                  {% else %}
+                    href="{{ block.settings.button_link_1 }}"
+                  {% endif %}
+                  class="button{% if block.settings.button_style_secondary_1 %} button--secondary{% else %} button--primary{% endif %}"
+                >
+                  {{- block.settings.button_label_1 | escape -}}
+                </a>
+              {%- endif -%}
+              {%- if block.settings.button_label_2 != blank -%}
+                <a
+                  {% if block.settings.button_link_2 == blank %}
+                    role="link" aria-disabled="true"
+                  {% else %}
+                    href="{{ block.settings.button_link_2 }}"
+                  {% endif %}
+                  class="button{% if block.settings.button_style_secondary_2 %} button--secondary{% else %} button--primary{% endif %}"
+                >
+                  {{- block.settings.button_label_2 | escape -}}
+                </a>
+              {%- endif -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{%- comment -%} === Custom Overlay Styles === {%- endcomment -%}
+<style>
+  /* Consolidated styles for the customized banner */
+  #Banner-{{ section.id }} {
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    width: 100% !important;
+  }
+
+  /* Force media to fill the container and ignore Shopify's "half-banner" logic */
+  #Banner-{{ section.id }} .banner__media {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 0 !important;
+  }
+
+  #Banner-{{ section.id }} .banner__media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  #Banner-{{ section.id }} .banner__media::before {
+    display: none !important;
+  }
+
+  /* Breakpoint-specific heights */
+
+  /* Laptop/Desktop (>= 990px) */
+  @media screen and (min-width: 990px) {
+    #Banner-{{ section.id }} {
+      {%- if section.settings.image != blank -%}
+        height: auto !important;
+        aspect-ratio: {{ section.settings.image.aspect_ratio }};
+      {%- else -%}
+        height: 500px !important;
+      {%- endif -%}
+    }
+  }
+
+  /* Tablet (750px - 989px) */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    #Banner-{{ section.id }} {
+      height: auto !important;
+      {%- if section.settings.image != blank -%}
+        aspect-ratio: {{ section.settings.image.aspect_ratio }};
+      {%- else -%}
+        min-height: 350px !important;
+      {%- endif -%}
+    }
+  }
+
+  /* Mobile (< 750px) */
+  @media screen and (max-width: 749px) {
+    #Banner-{{ section.id }} {
+      height: auto !important;
+      {%- if section.settings.image_2 != blank -%}
+        aspect-ratio: {{ section.settings.image_2.aspect_ratio }};
+      {%- elsif section.settings.image != blank -%}
+        aspect-ratio: {{ section.settings.image.aspect_ratio }};
+      {%- else -%}
+        min-height: 400px !important;
+      {%- endif -%}
+    }
+  }
+
+  {%- if section.settings.show_overlay_content -%}
+    #Banner-{{ section.id }}::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(50, 33, 27, 0.6) 0%,
+        rgba(50, 33, 27, 0.3) 50%,
+        rgba(50, 33, 27, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
+      display: block !important;
+    }
+  {%- else -%}
+    #Banner-{{ section.id }}::before {
+      display: none !important;
+    }
+  {%- endif -%}
+
+
+  .ib-overlay-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    z-index: 2 !important;
+    padding: 3rem 2rem;
+    max-width: var(--page-width);
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .ib-overlay-content__inner {
+    max-width: 550px;
+  }
+
+  .ib-overlay-badge {
+    display: inline-block;
+    background: #f97b22;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem 1.4rem;
+    border-radius: 50px;
+    margin-bottom: 1.6rem;
+    letter-spacing: 0.02em;
+  }
+
+  .ib-overlay-heading {
+    font-size: 4.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 1.4rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .ib-overlay-heading__line1 {
+    display: block;
+  }
+
+  .ib-overlay-heading__line2 {
+    display: block;
+    font-style: italic;
+    color: #F48525;
+  }
+
+  .ib-overlay-subtext {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin: 0 0 2.4rem;
+    max-width: 420px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .ib-overlay-buttons {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .ib-overlay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 4rem;
+    border-radius: 50px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .ib-overlay-btn--primary {
+    background: #f97b22;
+    color: #ffffff;
+    border: 2px solid #f97b22;
+    box-shadow: 0 4px 15px rgba(249, 123, 34, 0.3);
+  }
+
+  .ib-overlay-btn--primary:hover {
+    background: #e06b1a;
+    border-color: #e06b1a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 123, 34, 0.4);
+    color: #ffffff;
+  }
+
+  .ib-overlay-btn--secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .ib-overlay-btn--secondary:hover {
+    background: #ffffff;
+    color: #333333;
+    border-color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  @media screen and (max-width: 991px) {
+    .ib-overlay-content {
+      padding: 2.5rem 3rem;
+    }
+    .ib-overlay-heading {
+      font-size: 3.2rem;
+    }
+    .ib-overlay-subtext {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ib-overlay-gradient {
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.65) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        transparent 100%
+      );
+    }
+    .ib-overlay-content {
+      align-items: center;
+      padding: 1.5rem;
+    }
+    .ib-overlay-content__inner {
+      max-width: 100%;
+    }
+    .ib-overlay-heading {
+      font-size: 2.4rem;
+      margin-bottom: 0.8rem;
+    }
+    .ib-overlay-badge {
+      font-size: 1.1rem;
+      padding: 0.4rem 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .ib-overlay-subtext {
+      font-size: 1.3rem;
+      max-width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .ib-overlay-btn {
+      padding: 0.8rem 2.5rem;
+      font-size: 1.2rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.image-banner.name",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.image-banner.settings.image.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "t:sections.image-banner.settings.image_2.label"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "t:sections.image-banner.settings.image_overlay_opacity.label",
+      "default": 0
+    },
+    {
+      "type": "url",
+      "id": "banner_link",
+      "label": "Banner Link (Optional)"
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.image-banner.settings.image_height.options__1.label"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.image-banner.settings.image_height.options__2.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.image-banner.settings.image_height.options__3.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.image-banner.settings.image_height.options__4.label"
+        }
+      ],
+      "default": "medium",
+      "label": "t:sections.image-banner.settings.image_height.label",
+      "info": "t:sections.image-banner.settings.image_height.info"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__1.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__2.label"
+        },
+        {
+          "value": "top-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__4.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__5.label"
+        },
+        {
+          "value": "middle-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__6.label"
+        },
+        {
+          "value": "bottom-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__7.label"
+        },
+        {
+          "value": "bottom-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__8.label"
+        },
+        {
+          "value": "bottom-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__9.label"
+        }
+      ],
+      "default": "middle-center",
+      "label": "t:sections.image-banner.settings.desktop_content_position.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_box",
+      "default": true,
+      "label": "t:sections.image-banner.settings.show_text_box.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.image-banner.settings.desktop_content_alignment.label"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "options": [
+        {
+          "value": "accent-1",
+          "label": "t:sections.all.colors.accent_1.label"
+        },
+        {
+          "value": "accent-2",
+          "label": "t:sections.all.colors.accent_2.label"
+        },
+        {
+          "value": "background-1",
+          "label": "t:sections.all.colors.background_1.label"
+        },
+        {
+          "value": "background-2",
+          "label": "t:sections.all.colors.background_2.label"
+        },
+        {
+          "value": "inverse",
+          "label": "t:sections.all.colors.inverse.label"
+        }
+      ],
+      "default": "background-1",
+      "label": "t:sections.all.colors.label",
+      "info": "t:sections.image-banner.settings.color_scheme.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.animation.content"
+    },
+    {
+      "type": "select",
+      "id": "image_behavior",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.all.animation.image_behavior.options__1.label"
+        },
+        {
+          "value": "ambient",
+          "label": "t:sections.all.animation.image_behavior.options__2.label"
+        }
+      ],
+      "default": "none",
+      "label": "t:sections.all.animation.image_behavior.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-banner.settings.mobile.content"
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.image-banner.settings.mobile_content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.image-banner.settings.mobile_content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.image-banner.settings.mobile_content_alignment.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.image-banner.settings.mobile_content_alignment.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "stack_images_on_mobile",
+      "default": true,
+      "label": "t:sections.image-banner.settings.stack_images_on_mobile.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_below",
+      "default": true,
+      "label": "t:sections.image-banner.settings.show_text_below.label"
+    },
+    {
+      "type": "header",
+      "content": "Content Overlay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_content",
+      "label": "Show Content Overlay",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "overlay_badge",
+      "label": "Badge Text",
+      "default": "✨ Special Collection"
+    },
+    {
+      "type": "text",
+      "id": "overlay_heading_1",
+      "label": "Heading Line 1",
+      "default": "Gifts That Bring"
+    },
+    {
+      "type": "text",
+      "id": "overlay_heading_2",
+      "label": "Heading Line 2 (Italic / Gold)",
+      "default": "Joy & Happiness"
+    },
+    {
+      "type": "textarea",
+      "id": "overlay_subtext",
+      "label": "Subtext",
+      "default": "Personalized gifts made with love for the people who matter most."
+    },
+    {
+      "type": "text",
+      "id": "overlay_btn1_text",
+      "label": "Button 1 Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "overlay_btn1_url",
+      "label": "Button 1 URL"
+    },
+    {
+      "type": "text",
+      "id": "overlay_btn2_text",
+      "label": "Button 2 Text",
+      "default": "View Collections"
+    },
+    {
+      "type": "url",
+      "id": "overlay_btn2_url",
+      "label": "Button 2 URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.image-banner.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "Image banner",
+          "label": "t:sections.image-banner.blocks.heading.settings.heading.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "options": [
+            {
+              "value": "h2",
+              "label": "t:sections.all.heading_size.options__1.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.all.heading_size.options__2.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.all.heading_size.options__3.label"
+            }
+          ],
+          "default": "h1",
+          "label": "t:sections.all.heading_size.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.image-banner.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "default": "Give customers details about the banner image(s) or content on the template.",
+          "label": "t:sections.image-banner.blocks.text.settings.text.label"
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "options": [
+            {
+              "value": "body",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__1.label"
+            },
+            {
+              "value": "subtitle",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__2.label"
+            },
+            {
+              "value": "caption-with-letter-spacing",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__3.label"
+            }
+          ],
+          "default": "body",
+          "label": "t:sections.image-banner.blocks.text.settings.text_style.label"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.image-banner.blocks.buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "default": "Button label",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_label_1.label",
+          "info": "t:sections.image-banner.blocks.buttons.settings.button_label_1.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_link_1.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_secondary_1",
+          "default": false,
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_style_secondary_1.label"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "default": "Button label",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_label_2.label",
+          "info": "t:sections.image-banner.blocks.buttons.settings.button_label_2.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_link_2.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_secondary_2",
+          "default": false,
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_style_secondary_2.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-banner.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "buttons"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
