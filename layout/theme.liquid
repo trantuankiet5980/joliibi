@@ -12,6 +12,13 @@
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
+    {%- if template.name == 'collection' -%}
+      {%- assign first_product = collection.products.first -%}
+      {%- if first_product and first_product.featured_media -%}
+        <link rel="preload" as="image" href="{{ first_product.featured_media | image_url: width: 533 }}" fetchpriority="high">
+      {%- endif -%}
+    {%- endif -%}
+
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
@@ -36,6 +43,16 @@
     <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    {%- unless settings.type_body_font.system? -%}
+      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
+    {%- endunless -%}
+    {%- unless settings.type_header_font.system? -%}
+      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+    {%- endunless -%}
+    
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'custom-junip-reviews.css' | asset_url | stylesheet_tag }}
+
     {{ content_for_header }}
 
     {%- liquid
@@ -237,9 +254,6 @@
       {%- endif -%}
     {% endstyle %}
 
-    {{ 'base.css' | asset_url | stylesheet_tag }}
-    {{ 'custom-junip-reviews.css' | asset_url | stylesheet_tag }}
-
     {%- if template.name == 'index' -%}
       <style>
         #MainContent .shopify-section .collection__title .title,
@@ -249,13 +263,6 @@
         }
       </style>
     {%- endif -%}
-
-    {%- unless settings.type_body_font.system? -%}
-      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
-    {%- endunless -%}
-    {%- unless settings.type_header_font.system? -%}
-      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
-    {%- endunless -%}
 
     {%- if settings.predictive_search_enabled -%}
       <link

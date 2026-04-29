@@ -53,7 +53,7 @@
               alt="{{ card_product.featured_media.alt | escape }}"
               class="w-full h-full object-cover rounded"
               style="object-fit: contain;"
-              loading="lazy"
+              {% if lazy_load %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
               width="{{ card_product.featured_media.width }}"
               height="{{ card_product.featured_media.height }}"
             >
