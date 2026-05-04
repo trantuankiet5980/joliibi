@@ -18,7 +18,10 @@
   {% render 'card-product', show_vendor: section.settings.show_vendor %}
 {% endcomment %}
 
-{{ 'component-rating.css' | asset_url | stylesheet_tag }}
+{% comment %}
+  Rating markup in this card is currently disabled below. Keeping this stylesheet
+  out of product grids avoids duplicate CSS links on collection/home pages.
+{% endcomment %}
 
 {%- if card_product and card_product != empty -%}
   {%- liquid

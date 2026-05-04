@@ -19,6 +19,23 @@
       {%- endif -%}
     {%- endif -%}
 
+    {%- if template.name == 'index' -%}
+      <link
+        rel="preload"
+        as="image"
+        href="https://cdn.shopify.com/s/files/1/0797/7435/1609/files/kB2lM_upscayl_4x_realesrgan-x4plus.jpg?v=1774943345&width=1904"
+        media="(min-width: 769px)"
+        fetchpriority="high"
+      >
+      <link
+        rel="preload"
+        as="image"
+        href="https://cdn.shopify.com/s/files/1/0797/7435/1609/files/Iaoe5.jpg?v=1774948649&width=900"
+        media="(max-width: 768px)"
+        fetchpriority="high"
+      >
+    {%- endif -%}
+
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
@@ -51,7 +68,9 @@
     {%- endunless -%}
     
     {{ 'base.css' | asset_url | stylesheet_tag }}
-    {{ 'custom-junip-reviews.css' | asset_url | stylesheet_tag }}
+    {%- if template.name == 'product' -%}
+      {{ 'custom-junip-reviews.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {{ content_for_header }}
 
@@ -552,13 +571,28 @@
       <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
-    <script src=" {{ 'custom-teeinblue.js' | asset_url }}" defer="defer"></script>
-    {%- comment -%}Track123 error interceptor — see assets/custom-track123-interceptor.js{%- endcomment -%}
-    <script src="{{ 'custom-track123-interceptor.js' | asset_url }}" defer="defer"></script>
+    {%- liquid
+      assign is_teeinblue_product = false
+      if template.name == 'product'
+        if product.tags contains 'teeinblue-campaign' or product.tags contains 'teeinblue' or product.type == 'Customizer' or product.type == 'teeinblue' or product.vendor == 'teeinblue'
+          assign is_teeinblue_product = true
+        endif
+      endif
+    -%}
+    {%- if is_teeinblue_product -%}
+      <script src="{{ 'custom-teeinblue.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if request.path contains '/a/track-order' -%}
+      {%- comment -%}Track123 error interceptor: only needed on the order tracking proxy page.{%- endcomment -%}
+      <script src="{{ 'custom-track123-interceptor.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
 
     {% section 'custom-announcement-popup' %}
 
-    {%- comment -%} Custom style for Shopify Inbox Chat App {%- endcomment -%}
-    {% render 'custom-chat-style' %}
+    {%- comment -%}
+      Shopify Inbox custom styling is intentionally not rendered by default.
+      The Inbox app embed is disabled in this theme settings, and the old helper
+      polled the DOM on every page during load.
+    {%- endcomment -%}
   </body>
 </html>
