@@ -21,7 +21,12 @@
       <div class="auth-modal__logo">
         <a href="/" class="auth-modal__logo-link">
           {%- if section.settings.logo -%}
-            <img src="{{ section.settings.logo | image_url: width: 150 }}" alt="{{ shop.name }}" width="150">
+            <img
+              src="{{ section.settings.logo | image_url: width: 150 }}"
+              alt="{{ shop.name }}"
+              width="150"
+              height="{{ 150 | divided_by: section.settings.logo.aspect_ratio | round }}"
+            >
           {%- else -%}
             <span class="auth-modal__logo-text">{{ shop.name }}</span>
           {%- endif -%}
@@ -126,7 +131,12 @@
       <div class="auth-modal__logo">
         <a href="/" class="auth-modal__logo-link">
           {%- if section.settings.logo -%}
-            <img src="{{ section.settings.logo | image_url: width: 150 }}" alt="{{ shop.name }}" width="150">
+            <img
+              src="{{ section.settings.logo | image_url: width: 150 }}"
+              alt="{{ shop.name }}"
+              width="150"
+              height="{{ 150 | divided_by: section.settings.logo.aspect_ratio | round }}"
+            >
           {%- else -%}
             <span class="auth-modal__logo-text">{{ shop.name }}</span>
           {%- endif -%}

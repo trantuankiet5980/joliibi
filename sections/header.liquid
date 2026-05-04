@@ -145,8 +145,12 @@
   <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 <script src="{{ 'trending-search.js' | asset_url }}" defer="defer"></script>
-{{ 'auth-modal.css' | asset_url | stylesheet_tag }}
-<script src="{{ 'auth-modal.js' | asset_url }}" defer="defer"></script>
+{% comment %}
+  Auth modal markup is currently disabled below, so skip its CSS/JS on every page.
+  Re-enable these assets together with the auth-modal render if the popup login returns.
+  {{ 'auth-modal.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'auth-modal.js' | asset_url }}" defer="defer"></script>
+{% endcomment %}
 
 <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
   <symbol id="icon-search" viewbox="0 0 18 19" fill="none">

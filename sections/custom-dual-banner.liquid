@@ -133,7 +133,11 @@
             assign is_link = true
           endif
         -%}
-        <{% if is_link %}a href="{{ block.settings.button_link }}"{% else %}div{% endif %} class="dual-banner__item content-align-{{ block.settings.content_alignment }}" {{ block.shopify_attributes }}>
+        {%- if is_link -%}
+          <a href="{{ block.settings.button_link }}" class="dual-banner__item content-align-{{ block.settings.content_alignment }}" {{ block.shopify_attributes }}>
+        {%- else -%}
+          <div class="dual-banner__item content-align-{{ block.settings.content_alignment }}" {{ block.shopify_attributes }}>
+        {%- endif -%}
           {%- if block.settings.image != blank -%}
             {{ block.settings.image | image_url: width: 1500 | image_tag: class: 'dual-banner__image', loading: 'lazy' }}
           {%- else -%}
@@ -151,7 +155,11 @@
               <a href="{{ block.settings.button_link }}" class="dual-banner__button">{{ block.settings.button_label | escape }}</a>
             {%- endif -%}
           </div>
-        </{% if is_link %}a{% else %}div{% endif %}>
+        {%- if is_link -%}
+          </a>
+        {%- else -%}
+          </div>
+        {%- endif -%}
       {%- endfor -%}
     </div>
   </div>
