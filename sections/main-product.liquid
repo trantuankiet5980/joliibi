@@ -487,15 +487,21 @@
                     checkAndSyncPrice();
 
                     // Observe DOM changes to catch Teeinblue variant price updates dynamically
+                    let syncTimeout = null;
                     const priceObserver = new MutationObserver(() => {
-                      checkAndSyncPrice();
+                      if (syncTimeout) clearTimeout(syncTimeout);
+                      syncTimeout = setTimeout(() => {
+                        checkAndSyncPrice();
+                      }, 200); // 200ms debounce to prevent main thread lockup
                     });
 
-                    // Observe the entire body since Teeinblue can sometimes re-render the whole block
-                    priceObserver.observe(document.body, {
+                    // Observe the product info container instead of the whole body
+                    // If not found, fallback to body but without characterData to save memory
+                    const targetNode = document.querySelector('.product__info-container') || document.body;
+                    priceObserver.observe(targetNode, {
                       childList: true,
                       subtree: true,
-                      characterData: true,
+                      characterData: false
                     });
 
                     if (typeof subscribe === 'function' && typeof PUB_SUB_EVENTS !== 'undefined') {
